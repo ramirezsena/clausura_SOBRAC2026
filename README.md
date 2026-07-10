@@ -16,8 +16,8 @@ As condições experimentais consideradas são:
 - ruído rosa sem clausura;
 - ruído branco com clausura;
 - ruído rosa com clausura;
-- ruído branco com clausura e material absorvente;
-- ruído rosa com clausura e material absorvente;
+- ruído branco com clausura e material absorvedor;
+- ruído rosa com clausura e material absorvedor;
 
 As análises são realizadas separadamente para a Fonte 1 e para a Fonte 2.
 
