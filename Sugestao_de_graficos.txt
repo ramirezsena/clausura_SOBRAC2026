@@ -1,0 +1,22 @@
+Sugestão de gráficos para o código:
+
+- Retirar todos os plots de medições individuais
+- Deixar apenas os plots de conjuntos de 3 microfones
+- Mudar as cores das barras
+
+- Gráficos de NPS (10 gráficos)
+
+	- Residual inicial + final | todas as bandas | apenas 2 barras da média de cada residual
+	
+	- Fonte | F1 + 3 mics
+	- Fonte | F2 + 3 mics
+	- Fonte | 1 barra de média total | F1 (3mics) e F2 (3mics)
+	
+	- Fonte + clausura | F1 + 3 mics
+	- Fonte + clausura | F2 + 3 mics
+	- Fonte + clausura | 1 barra de média total | F1 (3mics) e F2 (3mics)
+	
+	- Fonte + clausura + absorvedor | F1 (3 mics)
+	- Fonte + clausura + absorvedor  | F2 (3 mics)
+	- Fonte + clausura + absorvedor  | 1 barra de média total | F1 (3 mics) e F2 (3 mics)
+	
