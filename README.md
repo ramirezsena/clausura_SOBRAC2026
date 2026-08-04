@@ -49,10 +49,6 @@ Código auxiliar para visualização ou análise de modos em gráficos tridimens
 
 Arquivo contendo os tempos de reverberação da câmara usados no cálculo da área de absorção equivalente.
 
-### `processamento_clausura_sobrac_graficos.asv`
-
-Arquivo de recuperação automática criado pelo MATLAB. Ele não é necessário para executar o projeto e pode ser removido do repositório.
-
 ## Como executar
 
 1. Baixe ou clone o repositório.
