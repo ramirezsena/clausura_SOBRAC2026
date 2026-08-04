@@ -37,10 +37,6 @@ Calcula o coeficiente de absorção em incidência normal de uma camada porosa d
 
 A função utiliza propriedades como resistividade ao fluxo, porosidade, tortuosidade e comprimentos característicos viscoso e térmico.
 
-### `processamento_clausura_sobrac_graficos.m`
-
-Versão antiga do código utilizada no processamento e na geração de gráficos do projeto. Contém apenas os gráficos de níveis de pressão sonora, mas esses gráficos já são plotados no código `PRINCIPAL.M`.
-
 ### `modos_plots_3D.m`
 
 Código auxiliar para visualização ou análise de modos em gráficos tridimensionais.
