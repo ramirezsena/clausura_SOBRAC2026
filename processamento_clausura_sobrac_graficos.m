@@ -126,10 +126,6 @@ grid on
 arruma_fig('no','% 2.1f','virgula')
 set(gca,'Fontsize',14)
 
-%% Correção do ruído residual
-
-d_Lpi = F1_mic1_branco;
-
 %% Plots do ruído residual
 residual_terco_inicial = [mic1_residual_inicial.Lp_terco_mic1(:), mic2_residual_inicial.Lp_terco_mic2(:), mic3_residual_inicial.Lp_terco_mic3(:)];
 residual_terco_inicial_media = 10*log10( (1/3) .* ( 10.^(mic1_residual_inicial.Lp_terco_mic1(:)./10) + 10.^(mic1_residual_inicial.Lp_terco_mic1(:)./10) + 10.^(mic1_residual_inicial.Lp_terco_mic1(:)./10) ) );
@@ -491,7 +487,38 @@ xticklabels(rotulos_freq(1:length(freq.f_terco)))
 xtickangle(45)
 legend('Mic. 1','Mic. 2','Mic. 3','Location','best')
 
-%% Correção de ruído residual
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% POTÊNCIA SONORA: FONTE SEM CLAUSURA
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Comparação - Ruído residual vs fonte sem clausura
+
+F1_branco_media = 10*log10( (1/3) * ( 10.^(F1_mic1_branco.Lp_terco_mic1(:)./10) + ...
+                                      10.^(F1_mic2_branco.Lp_terco_mic2(:)./10) + ...
+                                      10.^(F1_mic3_branco.Lp_terco_mic3(:)./10) ) );
+
+F2_branco_media = 10*log10( (1/3) * ( 10.^(F2_mic1_branco.Lp_terco_mic1(:)./10) + ...
+                                      10.^(F2_mic2_branco.Lp_terco_mic2(:)./10) + ...
+                                      10.^(F2_mic3_branco.Lp_terco_mic3(:)./10) ) );
+
+F1_F2_branco_media = 10*log10( (1/2) * (10.^(F1_branco_media(:)./10) + ...
+                                        10.^(F2_branco_media(:)./10) ) );
+
+figure('Position',[50 50 900 500]);
+bar(F1_F2_branco_media); hold on;
+bar(residual_terco_inicial_media) % escolhi o residual inicial porque é o de maiores níveis - medida + conservadora
+xticks(1:length(rotulos_freq))
+xticklabels(rotulos_freq)
+xlabel('Frequência [Hz]');
+ylabel(['NPS [dB ref. 20 ', char(181), 'Pa]'])
+legend('NPS médio','Residual médio','Location','northeast')
+xlim([9.4 30.6])
+ylim([0 1.2*max(F1_F2_branco_media)])
+grid on
+arruma_fig('no','% 2.1f','virgula')
+set(gca,'Fontsize',14)
+
+%% Correção de ruído residual - Fonte sem clausura
 
 delta_Lpi_F1_mic1_branco = F1_mic1_branco.Lp_terco_mic1(:) - mic1_residual_inicial.Lp_terco_mic1(:);
 delta_Lpi_F1_mic2_branco = F1_mic2_branco.Lp_terco_mic2(:) - mic2_residual_inicial.Lp_terco_mic2(:);
@@ -513,81 +540,86 @@ arruma_fig('no','% 2.1f','virgula')
 grid on
 
 disp(['Para a fonte sonora sem clausura, em todas as bandas os valores ultrapassam 15 dB, dispensando correção de ruído residual.']);
-%% Comparação - Ruído residual vs fonte sem clausura
 
-F1_branco_media = 10*log10( (1/3) * ( 10.^(F1_mic1_branco.Lp_terco_mic1(:)./10) + ...
-                                      10.^(F1_mic2_branco.Lp_terco_mic2(:)./10) + ...
-                                      10.^(F1_mic3_branco.Lp_terco_mic3(:)./10) ) );
-
-F2_branco_media = 10*log10( (1/3) * ( 10.^(F2_mic1_branco.Lp_terco_mic1(:)./10) + ...
-                                      10.^(F2_mic2_branco.Lp_terco_mic2(:)./10) + ...
-                                      10.^(F2_mic3_branco.Lp_terco_mic3(:)./10) ) );
-
-F1_F2_branco_media = 10*log10( (1/2) * (10.^(F1_branco_media(:)./10) + ...
-                                        10.^(F2_branco_media(:)./10) ) );
-
-figure('Position',[50 50 900 500]);
-bar(F1_F2_branco_media); hold on;
-bar(residual_terco_inicial_media) % escolhi o residual inicial porque é o de maiores níveis - medida + conservadora
-xticks(1:length(rotulos_freq))
-xticklabels(rotulos_freq)
-xlabel('Frequência [Hz]');
-ylabel(['NPS [dB ref. 20 ', char(181), 'Pa]'])
-legend('NPS médio','Residual','Location','northeast')
-xlim([9.4 30.6])
-ylim([0 1.2*max(F1_F2_branco_media)])
-grid on
-arruma_fig('no','% 2.1f','virgula')
-set(gca,'Fontsize',14)
-
-%% Gráfico da diferença entre o NPS médio e o residual médio
+%% Diferença entre o NPS médio não corrigido e o ruído residual médio
 
 figure('Position',[50 50 900 500]);
 
-% Relação sinal-ruído
-d_Lp = F1_F2_branco_media - residual_terco_inicial_media;
+% Garante vetores-coluna
+Lp_fonte_residual = F1_F2_branco_media(:);
+Lp_residual       = residual_terco_inicial_media(:);
 
+% Diferença usada para verificar o critério de ruído de fundo
+d_Lp = Lp_fonte_residual - Lp_residual;
+
+% Frequências numéricas em Hz
+freq_Hz = [12.5 16 20 25 31.5 40 50 63 80 100 ...
+           125 160 200 250 315 400 500 630 800 1000 ...
+           1250 1600 2000 2500 3150 4000 5000 6300 ...
+           8000 10000 12500 16000 20000];
+
+% Critério da ISO 3741 para cada banda
+criterio = nan(size(freq_Hz));
+
+criterio((freq_Hz >= 100  & freq_Hz <= 200) | ...
+         (freq_Hz >= 6300 & freq_Hz <= 10000)) = 6;
+
+criterio(freq_Hz >= 250 & freq_Hz <= 5000) = 10;
+
+% Índices correspondentes a 100 Hz até 10 kHz
+idx_plot = find(freq_Hz >= 100 & freq_Hz <= 10000);
+
+% Barras
 bar(d_Lp);
 hold on;
 
-% Linhas horizontais de referência em 6 dB e 10 dB
-yline(6, '--', '', ...
-    'LineWidth', 1.5, ...
-    'LabelHorizontalAlignment', 'left', ...
-    'LabelVerticalAlignment', 'bottom');
+% Linha em degraus com o critério aplicável em cada frequência
+x_degraus = [idx_plot - 0.5, idx_plot(end) + 0.5];
+y_degraus = [criterio(idx_plot), criterio(idx_plot(end))];
 
-yline(10, '--', '', ...
-    'LineWidth', 1.5, ...
-    'LabelHorizontalAlignment', 'left', ...
-    'LabelVerticalAlignment', 'bottom');
+stairs(x_degraus, y_degraus, 'k--', ...
+    'LineWidth', 1.8);
+
+% Linha de 15 dB: acima dela K1 = 0
+yline(15, ':', '', ...
+    'LineWidth', 1.3, ...
+    'LabelHorizontalAlignment', 'left');
 
 % Eixo x
 xticks(1:length(rotulos_freq));
 xticklabels(rotulos_freq);
-xlim([9.4 30.6]);
+xlim([idx_plot(1)-0.5, idx_plot(end)+0.5]);
+ylim([0 2*max(d_Lp)])
 
-% Inclui 6 e 10 nos valores do eixo y
+xlabel('Frequência [Hz]');
+ylabel('\Delta {\itL}_p [dB]', 'Interpreter', 'tex');
+
+legend('\Delta {\itL}_p medido', ...
+       'Critério de ruído residual', ...
+       'Limite para K_1 = 0', ...
+       'Location', 'northeast');
+
+margem = 0.4*(limite_superior - limite_inferior);
+ylim([0, limite_superior + margem]);
+
+grid on;
+arruma_fig('no','% 2.1f','virgula');
+
+% Inclui 6, 10 e 15 dB nos valores do eixo y
 ax = gca;
-valores_y = unique([ax.YTick, 6, 10]);
-yticks(valores_y);
+valores_y = unique([ax.YTick(:); 6; 10; 15]).';
+ax.YTick = valores_y;
 
-% Destaca 6 e 10 em negrito
 rotulos_y = arrayfun(@(x) sprintf('%.0f',x), ...
     valores_y, 'UniformOutput', false);
 
 rotulos_y{valores_y == 6}  = '\bf6';
 rotulos_y{valores_y == 10} = '\bf10';
+rotulos_y{valores_y == 15} = '\bf15';
 
-yticklabels(rotulos_y);
+ax.YTickLabel = rotulos_y;
 ax.TickLabelInterpreter = 'tex';
-
-xlabel('Frequência [Hz]');
-ylabel('\Delta{\itL}_p [dB]');
-ylim([0 1.05*max(d_Lp)])
-
-grid on;
-arruma_fig('no','% 2.1f','virgula');
-set(gca,'FontSize',14);
+ax.FontSize = 14;
 
 %% Cálculo de potência da fonte sonora
 
@@ -623,3 +655,61 @@ ylabel('{\itL}_w [dB ref. 1 pW]');
 grid on
 arruma_fig('no','% 2.1f','virgula');
 set(gca,'FontSize',14);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% POTÊNCIA SONORA: FONTE + CLAUSURA + ABSORVEDOR
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Comparação - Ruído residual vs fonte + clausura + absorvedor
+
+F1_branco_clausura_material_media = 10*log10( (1/3) * ( 10.^(F1_mic1_branco_clausura_material.Lp_terco_mic1(:)./10) + ...
+                                      10.^(F1_mic2_branco_clausura_material.Lp_terco_mic2(:)./10) + ...
+                                      10.^(F1_mic3_branco_clausura_material.Lp_terco_mic3(:)./10) ) );
+
+F2_branco_clausura_material_media = 10*log10( (1/3) * ( 10.^(F2_mic1_branco_clausura_material.Lp_terco_mic1(:)./10) + ...
+                                      10.^(F2_mic2_branco_clausura_material.Lp_terco_mic2(:)./10) + ...
+                                      10.^(F2_mic3_branco_clausura_material.Lp_terco_mic3(:)./10) ) );
+
+F1_F2_branco_clausura_material_media = 10*log10( (1/2) * (10.^(F1_branco_clausura_material_media(:)./10) + ...
+                                        10.^(F2_branco_clausura_material_media(:)./10) ) );
+
+figure('Position',[50 50 900 500]);
+bar(F1_F2_branco_clausura_material_media); hold on;
+bar(residual_terco_inicial_media) % escolhi o residual inicial porque é o de maiores níveis - medida + conservadora
+xticks(1:length(rotulos_freq))
+xticklabels(rotulos_freq)
+xlabel('Frequência [Hz]');
+ylabel(['NPS [dB ref. 20 ', char(181), 'Pa]'])
+legend('NPS médio','Residual','Location','northeast')
+xlim([9.4 30.6])
+ylim([0 1.2*max(F1_F2_branco_clausura_material_media)])
+grid on
+arruma_fig('no','% 2.1f','virgula')
+set(gca,'Fontsize',14)
+
+%% Correção de ruído residual - Fonte + clausura + material
+
+delta_Lpi_F1_mic1_branco_clausura_material = F1_mic1_branco_clausura_material.Lp_terco_mic1(:) - mic1_residual_inicial.Lp_terco_mic1(:);
+delta_Lpi_F1_mic2_branco_clausura_material = F1_mic2_branco_clausura_material.Lp_terco_mic2(:) - mic2_residual_inicial.Lp_terco_mic2(:);
+delta_Lpi_F1_mic3_branco_clausura_material = F1_mic3_branco_clausura_material.Lp_terco_mic3(:) - mic3_residual_inicial.Lp_terco_mic3(:);
+% 
+figure('Position',[50 50 900 500])
+bar(delta_Lpi_F1_mic1_branco_clausura_material); hold on
+bar(delta_Lpi_F1_mic2_branco_clausura_material); hold on
+bar(delta_Lpi_F1_mic3_branco_clausura_material);
+title('\Delta{\itL}_p = NPS_{fonte} - NPS_{residual}')
+xlabel('Frequência [Hz]')
+ylabel('\Delta{\itL}_p [dB]');
+xticks(1:length(rotulos_freq))
+xticklabels(rotulos_freq)
+set(gca,'Fontsize',14)
+legend('Mic. 1','Mic. 2','Mic. 3','Location','northeast')
+xlim([9.4 30.6])
+arruma_fig('no','% 2.1f','virgula')
+grid on
+
+% disp(['Para a fonte sonora sem clausura, em todas as bandas os valores ultrapassam 15 dB, dispensando correção de ruído residual.']);
+
+
+%% %%%%%%%%%%%%%%
+
