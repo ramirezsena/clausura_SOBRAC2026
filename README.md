@@ -39,7 +39,7 @@ A função utiliza propriedades como resistividade ao fluxo, porosidade, tortuos
 
 ### `processamento_clausura_sobrac_graficos.m`
 
-Código de apoio utilizado no processamento e na geração de gráficos do projeto. Pode conter rotinas anteriores ou complementares às consolidadas em `PRINCIPAL.m`.
+Versão antiga do código utilizada no processamento e na geração de gráficos do projeto. Contém apenas os gráficos de níveis de pressão sonora, mas esses gráficos já são plotados no código `PRINCIPAL.M`.
 
 ### `modos_plots_3D.m`
 
